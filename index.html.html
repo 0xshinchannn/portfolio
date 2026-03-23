@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Isabella Yu | BD & Growth</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131e;
+    --surface2: #1c1c2e;
+    --border: rgba(255,255,255,0.08);
+    --accent: #7c6ff7;
+    --accent2: #4fc3f7;
+    --accent3: #f7c94f;
+    --text: #e8e8f0;
+    --muted: #7f7f99;
+    --grad: linear-gradient(135deg, #7c6ff7 0%, #4fc3f7 100%);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; height:100vh; overflow:hidden; user-select:none; }
+  .deck { width:100vw; height:100vh; position:relative; }
+  .slide { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:50px 8% 80px; opacity:0; pointer-events:none; transition:opacity 0.4s ease; }
+  .slide.active { opacity:1; pointer-events:all; }
+  .nav-bar { position:fixed; bottom:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:14px 5%; background:rgba(10,10,15,0.92); backdrop-filter:blur(12px); border-top:1px solid var(--border); z-index:100; }
+  .nav-dots { display:flex; gap:8px; align-items:center; }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--border); border:1px solid var(--muted); cursor:pointer; transition:all 0.2s; }
+  .dot.active { background:var(--accent); border-color:var(--accent); transform:scale(1.4); }
+  .nav-btns { display:flex; gap:10px; }
+  .nav-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:7px 18px; border-radius:8px; font-size:0.82rem; cursor:pointer; transition:all 0.2s; }
+  .nav-btn:hover { border-color:var(--accent); }
+  .nav-btn:disabled { opacity:0.3; cursor:default; }
+  .slide-counter { font-size:0.75rem; color:var(--muted); }
+  .glow { position:absolute; border-radius:50%; pointer-events:none; z-index:0; filter:blur(90px); }
+  .label { font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:0.5rem; }
+  h2 { font-size:clamp(1.5rem,3vw,2.3rem); font-weight:700; }
+  .grad-text { background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .muted { color:var(--muted); }
+  .link-pill { display:inline-flex; align-items:center; gap:8px; background:var(--surface2); border:1px solid var(--border); color:var(--text); text-decoration:none; padding:9px 18px; border-radius:8px; font-size:0.82rem; transition:border-color 0.2s, transform 0.2s; }
+  .link-pill:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .tags { display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:1.2rem; }
+  .tag-chip { background:rgba(124,111,247,0.1); border:1px solid rgba(124,111,247,0.22); color:var(--accent); font-size:0.7rem; padding:3px 10px; border-radius:100px; }
+  .tag-chip.green { background:rgba(79,195,247,0.1); border-color:rgba(79,195,247,0.25); color:var(--accent2); }
+  .tag-chip.gold { background:rgba(247,201,79,0.1); border-color:rgba(247,201,79,0.25); color:var(--accent3); }
+  .points { display:flex; flex-direction:column; gap:0.7rem; }
+  .point { display:flex; gap:0.75rem; font-size:0.875rem; line-height:1.65; }
+  .pdot { width:5px; height:5px; background:var(--accent); border-radius:50%; flex-shrink:0; margin-top:9px; }
+  a.pl { color:var(--accent2); text-decoration:none; }
+  a.pl:hover { text-decoration:underline; }
+  a.pa { color:var(--accent3); text-decoration:none; }
+  a.pa:hover { text-decoration:underline; }
+
+  /* S1 */
+  #s1 { text-align:center; }
+  #s1 .g1 { width:500px; height:500px; background:rgba(124,111,247,0.16); top:-120px; left:50%; transform:translateX(-50%); }
+  .hero-tag { display:inline-flex; align-items:center; gap:8px; background:rgba(124,111,247,0.12); border:1px solid rgba(124,111,247,0.3); border-radius:100px; padding:6px 18px; font-size:0.72rem; color:var(--accent); letter-spacing:0.09em; text-transform:uppercase; margin-bottom:1.4rem; }
+  .hero-tag span { width:6px; height:6px; background:var(--accent); border-radius:50%; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  #s1 h1 { font-size:clamp(2.4rem,5.5vw,4rem); font-weight:800; line-height:1.1; }
+  #s1 .role { font-size:clamp(1rem,2vw,1.3rem); color:var(--muted); margin-top:0.5rem; }
+  #s1 .sub { font-size:0.92rem; color:var(--muted); max-width:540px; margin:1.2rem auto 2rem; line-height:1.75; }
+  #s1 .links { display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; }
+
+  /* S2 */
+  #s2 .inner { width:100%; max-width:860px; }
+  #s2 .bd-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-top:1.8rem; }
+  .bd-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.4rem; transition:all 0.2s; }
+  .bd-card:hover { border-color:rgba(124,111,247,0.4); transform:translateY(-2px); }
+  .bd-cat { font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent); margin-bottom:0.4rem; }
+  .bd-title { font-weight:700; font-size:1rem; margin-bottom:0.5rem; }
+  .bd-desc { font-size:0.8rem; color:var(--muted); line-height:1.6; }
+
+  /* S3 */
+  #s3 .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.3rem; width:100%; max-width:860px; margin-top:1.8rem; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.6rem; text-align:center; transition:all 0.2s; }
+  .stat-card:hover { border-color:rgba(124,111,247,0.4); transform:translateY(-3px); }
+  .stat-num { font-size:1.9rem; font-weight:800; margin-bottom:0.25rem; }
+  .stat-lbl { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.07em; }
+  .stat-sub { font-size:0.7rem; color:var(--accent2); margin-top:4px; }
+
+  /* EXP SLIDES */
+  .exp-slide { width:100%; max-width:840px; }
+  .exp-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.2rem; }
+  .exp-period { font-size:0.72rem; color:var(--muted); background:var(--surface2); border:1px solid var(--border); border-radius:100px; padding:4px 14px; white-space:nowrap; }
+  .exp-company { font-size:0.85rem; font-weight:600; margin-bottom:0.15rem; }
+  .exp-tagline { font-size:0.8rem; color:var(--muted); font-style:italic; margin-bottom:1.2rem; border-left:2px solid var(--accent); padding-left:0.75rem; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  .col-label { font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent3); margin-bottom:0.6rem; font-weight:600; }
+
+  /* S7 */
+  #s7 { text-align:center; }
+  #s7 .g1 { width:400px; height:400px; background:rgba(79,195,247,0.1); bottom:-100px; right:-80px; }
+  .okx-box { background:var(--surface); border:1px solid rgba(124,111,247,0.28); border-radius:16px; padding:2rem 2.5rem; max-width:740px; text-align:left; }
+  .okx-box p { color:var(--muted); font-size:0.85rem; line-height:1.75; margin-bottom:1.4rem; }
+  .why-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; }
+  .why-pt { display:flex; gap:0.6rem; font-size:0.82rem; line-height:1.55; }
+  .why-pt::before { content:'→'; color:var(--accent); flex-shrink:0; }
+
+  /* S8 */
+  #s8 { text-align:center; }
+  #s8 .g1 { width:500px; height:500px; background:rgba(124,111,247,0.14); top:-150px; left:50%; transform:translateX(-50%); }
+  #s8 .clinks { display:flex; flex-direction:column; gap:0.9rem; align-items:center; margin-top:2rem; }
+
+  @media (max-width:640px) {
+    #s2 .bd-grid, #s3 .stats-grid, .two-col, .why-grid { grid-template-columns:1fr; }
+    .exp-header { flex-direction:column; gap:0.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- S1: HERO -->
+  <div class="slide active" id="s1">
+    <div class="glow g1"></div>
+    <div style="position:relative;z-index:1;text-align:center;">
+      <div class="hero-tag"><span></span> BD · Growth · DeFi · Hong Kong</div>
+      <h1><span class="grad-text">Isabella Yu</span></h1>
+      <p class="role">Business Development &amp; Growth · Web3 DeFi</p>
+      <p class="sub">4+ years closing partnerships, designing referral programs, and activating KOL networks that move liquidity and drive on-chain volume across DeFi protocols.</p>
+      <div class="links">
+        <a href="mailto:yuwt82@gmail.com" class="link-pill">✉️ yuwt82@gmail.com</a>
+        <a href="https://www.linkedin.com/in/0xshinchan/" target="_blank" class="link-pill">💼 LinkedIn</a>
+        <a href="https://0xshinchan.substack.com" target="_blank" class="link-pill">📝 Substack</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2: BD & GROWTH FOCUS -->
+  <div class="slide" id="s2">
+    <div class="inner">
+      <p class="label">What I bring</p>
+      <h2>BD &amp; Growth <span class="grad-text">Specialisations</span></h2>
+      <div class="bd-grid">
+        <div class="bd-card">
+          <div class="bd-cat">Partnerships & BD</div>
+          <div class="bd-title">Deal Closing & Protocol Integrations</div>
+          <div class="bd-desc">Sourcing and closing partnerships with L1/L2 foundations, DeFi protocols, CEXs, and wallets — from first outreach to live integration with measurable TVL or volume impact.</div>
+        </div>
+        <div class="bd-card">
+          <div class="bd-cat">Referral & Affiliate Programs</div>
+          <div class="bd-title">Revenue Share Architecture</div>
+          <div class="bd-desc">Promoting affiliate programs to institutional clients, tracking referral pipelines via Salesforce, and communicating recurring custody fee revenue share structures to drive partner retention.</div>
+        </div>
+        <div class="bd-card">
+          <div class="bd-cat">KOL Strategy</div>
+          <div class="bd-title">DeFi Content Coverage & Activation</div>
+          <div class="bd-desc">Recruiting, onboarding, and incentivizing KOLs to cover DeFi content and protocol launches — with a focus on driving measurable traffic and conversion, not just impressions.</div>
+        </div>
+        <div class="bd-card">
+          <div class="bd-cat">Liquidity Growth</div>
+          <div class="bd-title">LP Onboarding & Incentive Design</div>
+          <div class="bd-desc">Structuring pre-deposit campaigns and yield strategies to onboard institutional and retail LPs — with a specific track record in APAC and Chinese-speaking markets.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3: STATS -->
+  <div class="slide" id="s3">
+    <div style="width:100%;max-width:860px;">
+      <p class="label">Proof of work</p>
+      <h2>Growth <span class="grad-text">by the Numbers</span></h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num grad-text">$1.2B+</div>
+          <div class="stat-lbl">Peak TVL Driven</div>
+          <div class="stat-sub">Platypus Finance · Hailstone Labs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num grad-text">$220M+</div>
+          <div class="stat-lbl">TVL via Auth Tools</div>
+          <div class="stat-sub">Cobo Argus · GMX, Lybra, Paraswap</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num grad-text">$3M+</div>
+          <div class="stat-lbl">Peak Deposits</div>
+          <div class="stat-sub">tBTC/xBTC LP · OKX Wallet</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num grad-text">6K+</div>
+          <div class="stat-lbl">CT Followers</div>
+          <div class="stat-sub">Founder · YieldClub · @0xShinChannn</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num grad-text">4+</div>
+          <div class="stat-lbl">Years in DeFi BD</div>
+          <div class="stat-sub">Institutional & Retail · APAC focus</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num grad-text">3</div>
+          <div class="stat-lbl">Languages</div>
+          <div class="stat-sub">English · Mandarin · Cantonese</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4: THRESHOLD -->
+  <div class="slide" id="s4">
+    <div class="exp-slide">
+      <div class="exp-header">
+        <div>
+          <p class="label">Experience · 01 · BD & Growth</p>
+          <h2>Growth Lead</h2>
+          <div class="exp-company"><a href="https://www.threshold.network/" target="_blank" class="pl">Threshold Network</a></div>
+        </div>
+        <div class="exp-period">May 2025 – Mar 2026</div>
+      </div>
+      <p class="exp-tagline">tBTC — the most decentralized 1:1 tokenized Bitcoin, enabling cross-chain liquidity for users across ecosystems.</p>
+      <div class="two-col">
+        <div>
+          <div class="col-label">🤝 BD & Partnerships</div>
+          <div class="points">
+            <div class="point"><div class="pdot"></div><div>Coordinated <strong>vault partnerships &amp; revenue share</strong> discussions with <a href="https://ember.finance" target="_blank" class="pl">Ember</a>, <a href="https://midas.app" target="_blank" class="pl">Midas</a>, <a href="https://lagoon.finance" target="_blank" class="pl">Lagoon</a>, <a href="https://bitvault.finance" target="_blank" class="pl">BitVault</a>, <a href="https://concrete.xyz" target="_blank" class="pl">Concrete</a>, and <a href="https://x.com/MEVCapital" target="_blank" class="pl">MEV Capital</a>.</div></div>
+            <div class="point"><div class="pdot"></div><div>Drove tBTC/xBTC LP listing on <a href="https://www.okx.com/web3" target="_blank" class="pl"><strong>OKX Wallet</strong></a>, hitting <strong>$3M+ peak deposits</strong> — <a href="https://x.com/TheTNetwork/status/1953424813244244157" target="_blank" class="pa">view announcement →</a></div></div>
+            <div class="point"><div class="pdot"></div><div>Cross-chain liquidity enablement with <a href="https://sui.io" target="_blank" class="pl">Sui</a> (<a href="https://x.com/SuiNetwork/status/1942238561626890371" target="_blank" class="pa">tBTC live →</a>), <a href="https://starknet.io" target="_blank" class="pl">Starknet</a> (<a href="https://x.com/Starknet/status/1976270782998155351" target="_blank" class="pa">tBTC live →</a>), <a href="https://morpho.org" target="_blank" class="pl">Morpho</a>, and <a href="https://bluefin.io" target="_blank" class="pl">Bluefin</a>.</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="col-label">🌏 Growth & LP Activation</div>
+          <div class="points">
+            <div class="point"><div class="pdot"></div><div>Onboarded <strong>Chinese-speaking LPs</strong> to expand tBTC's reach across the <strong>APAC market</strong> for Bitcoin minting.</div></div>
+            <div class="point"><div class="pdot"></div><div>Led <strong>KOL DeFi content coverage</strong> — including <a href="https://x.com/stacy_muur/status/1976209802545201433" target="_blank" class="pl">featured coverage by @stacy_muur →</a> — and represented Threshold at industry conferences.</div></div>
+            <div class="point"><div class="pdot"></div><div>Tracked tBTC performance and volume via <a href="https://dune.com/threshold/tbtc-performance-dashboard" target="_blank" class="pl"><strong>Dune Dashboard →</strong></a>; compiled BD reports for senior management.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag-chip">Vault Partnerships</span>
+        <span class="tag-chip">Revenue Share</span>
+        <span class="tag-chip gold">OKX Wallet · $3M+</span>
+        <span class="tag-chip">MEV Capital</span>
+        <span class="tag-chip green">APAC LP Onboarding</span>
+        <span class="tag-chip">Sui · Starknet · Base</span>
+        <span class="tag-chip">Cross-chain Liquidity</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5: COBO -->
+  <div class="slide" id="s5">
+    <div class="exp-slide">
+      <div class="exp-header">
+        <div>
+          <p class="label">Experience · 02 · BD & Referral Programs</p>
+          <h2>BD Manager</h2>
+          <div class="exp-company"><a href="https://www.cobo.com/" target="_blank" class="pl">Cobo</a></div>
+        </div>
+        <div class="exp-period">Nov 2023 – May 2025</div>
+      </div>
+      <p class="exp-tagline">Singapore-based omni-custody platform trusted by 500+ institutions across 80+ chains.</p>
+      <div class="two-col">
+        <div>
+          <div class="col-label">🔗 Affiliate Program & Client BD</div>
+          <div class="points">
+            <div class="point"><div class="pdot"></div><div>Promoted <strong>Cobo's affiliate referral program</strong> to institutional clients — onboarding partners and tracking referral performance via <strong>Salesforce dashboard</strong>.</div></div>
+            <div class="point"><div class="pdot"></div><div>Educated clients on recurring <strong>custody fee revenue share</strong> structure, supporting partner retention and pipeline expansion.</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="col-label">📈 BD & TVL Growth</div>
+          <div class="points">
+            <div class="point"><div class="pdot"></div><div>Drove <strong>$220M+ TVL</strong> in <a href="https://cobo.com/argus" target="_blank" class="pl">Cobo Argus</a> authorization tools — partnerships with <a href="https://lybra.finance" target="_blank" class="pl">Lybra</a>, <a href="https://gmx.io" target="_blank" class="pl">GMX</a>, and <a href="https://paraswap.io" target="_blank" class="pl">Paraswap</a>.</div></div>
+            <div class="point"><div class="pdot"></div><div>Coordinated <strong>ParaSwap API integration</strong> with Cobo Argus via their grant program — <a href="https://gov.paraswap.network/t/pip-41-grant-application-institution-onboarding-of-cobo-argus-into-the-paraswap-ecosystem/1538/25" target="_blank" class="pa">view PIP-41 grant proposal →</a></div></div>
+            <div class="point"><div class="pdot"></div><div>Built <strong>EigenLayer pre-deposit strategies</strong>; onboarded LPs across <a href="https://x.com/Cobo_Global/status/1952292725078007906" target="_blank" class="pl">Solv →</a>, <a href="https://bedrock.technology" target="_blank" class="pl">Bedrock</a>, Babypie, and integrated <a href="https://www.linkedin.com/posts/cobo-global_pendle-is-now-live-on-cobo-cobo-is-a-global-activity-7153336596602195968-0vD2" target="_blank" class="pl">Pendle on Cobo →</a>.</div></div>
+            <div class="point"><div class="pdot"></div><div>Forged partnership with <a href="https://scroll.io" target="_blank" class="pl">Scroll</a> for Ethereum L2 — <a href="https://www.cobo.com/zh/post/cobo-announces-collaboration-with-ethereum-layer-2-solution-scroll" target="_blank" class="pa">view announcement →</a></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag-chip gold">Affiliate Program Promotion</span>
+        <span class="tag-chip gold">Salesforce Tracking</span>
+        <span class="tag-chip green">$220M TVL</span>
+        <span class="tag-chip">EigenLayer</span>
+        <span class="tag-chip">GMX · Lybra · Paraswap</span>
+        <span class="tag-chip">Solv · Pendle · Scroll</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: HAILSTONE -->
+  <div class="slide" id="s6">
+    <div class="exp-slide">
+      <div class="exp-header">
+        <div>
+          <p class="label">Experience · 03 · KOL Growth & GTM</p>
+          <h2>Assistant Manager</h2>
+          <div class="exp-company"><a href="https://hailstonelabs.com/" target="_blank" class="pl">Hailstone Labs</a></div>
+        </div>
+        <div class="exp-period">Apr 2022 – Nov 2023</div>
+      </div>
+      <p class="exp-tagline">Asia's leading Web3 venture studio, incubating early-stage DeFi projects from concept to launch.</p>
+      <div class="two-col">
+        <div>
+          <div class="col-label">📣 KOL Onboarding & DeFi Content</div>
+          <div class="points">
+            <div class="point"><div class="pdot"></div><div>Led <strong>KOL DeFi content coverage and activation</strong> — including <a href="https://x.com/DefiIgnas/status/1568235486673784832" target="_blank" class="pl">featured coverage by @DefiIgnas on Platypus →</a></div></div>
+            <div class="point"><div class="pdot"></div><div>Managed end-to-end KOL campaigns across <a href="https://twitter.com" target="_blank" class="pl">Twitter</a>, Telegram, and Discord — AMAs, launch threads, and ongoing DeFi content.</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="col-label">🚀 GTM & Liquidity Campaigns</div>
+          <div class="points">
+            <div class="point"><div class="pdot"></div><div>Drove <a href="https://defillama.com/protocol/platypus-finance" target="_blank" class="pl"><strong>$1.2B+ peak TVL — Platypus Finance →</strong></a> and <strong>$200M+ peak TVL</strong> for <a href="https://wombat.exchange" target="_blank" class="pl">Wombat Exchange</a> through pre-deposit and incentive campaigns.</div></div>
+            <div class="point"><div class="pdot"></div><div>Secured <a href="https://pancakeswap.finance/voting/proposal/0x01ced179a39d30bc11436fd7f578ae45089bacaace57caa47881146fce7586ba" target="_blank" class="pl"><strong>PancakeSwap IFO listing →</strong></a> and CEX listings for <a href="https://platypus.finance" target="_blank" class="pl">Platypus</a>, Wombat, and <a href="https://sable.finance" target="_blank" class="pl">Sable Finance</a>.</div></div>
+            <div class="point"><div class="pdot"></div><div>Managed testnet/mainnet launches, investor pitching, and token sales for portfolio protocols.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag-chip gold">KOL Onboarding</span>
+        <span class="tag-chip">DeFi Content Coverage</span>
+        <span class="tag-chip green">$1.2B TVL · Platypus</span>
+        <span class="tag-chip green">$200M TVL · Wombat</span>
+        <span class="tag-chip">PancakeSwap IFO</span>
+        <span class="tag-chip">GTM Execution</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- S7: WHY OKX DEX -->
+  <div class="slide" id="s7">
+    <div class="glow g1"></div>
+    <div style="position:relative;z-index:1;width:100%;max-width:760px;">
+      <p class="label" style="text-align:center;">Why OKX DEX</p>
+      <h2 style="text-align:center;margin-bottom:1.4rem;">Already <span class="grad-text">inside the ecosystem</span></h2>
+      <div class="okx-box">
+        <p>I'm not approaching <a href="https://www.okx.com/web3/dex" target="_blank" class="pl">OKX DEX</a> cold. Having driven the tBTC/xBTC LP integration directly on OKX Wallet and built referral and KOL programs from the ground up, I understand both the product and the BD motion that moves volume on your platform.</p>
+        <div class="why-grid">
+          <div class="why-pt">Drove $3M+ in OKX Wallet deposits via tBTC/xBTC LP — existing OKX ecosystem relationship</div>
+          <div class="why-pt">Promoted affiliate referral programs to institutional clients with Salesforce tracking</div>
+          <div class="why-pt">KOL onboarding track record focused on DeFi content coverage and activation</div>
+          <div class="why-pt">APAC LP network — onboarded Chinese-speaking liquidity providers for Bitcoin minting</div>
+          <div class="why-pt">Multi-chain fluency: Base, Sui, Starknet, EVM, BTC L2s — and active Solana awareness</div>
+          <div class="why-pt">Bilingual English & Mandarin/Cantonese — strong Asia-Pacific community and BD network</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S8: CONTACT -->
+  <div class="slide" id="s8">
+    <div class="glow g1"></div>
+    <div style="position:relative;z-index:1;text-align:center;">
+      <p class="label">Let's talk</p>
+      <h2 style="margin-bottom:0.5rem;">Get in <span class="grad-text">Touch</span></h2>
+      <p class="muted" style="font-size:0.88rem;margin-bottom:0.5rem;">Open to conversations about DeFi growth, BD roles, and the next big opportunity.</p>
+      <div class="clinks">
+        <a href="mailto:yuwt82@gmail.com" class="link-pill" style="font-size:0.9rem;padding:12px 28px;">✉️ yuwt82@gmail.com</a>
+        <a href="https://www.linkedin.com/in/0xshinchan/" target="_blank" class="link-pill" style="font-size:0.9rem;padding:12px 28px;">💼 linkedin.com/in/0xshinchan</a>
+        <a href="https://0xshinchan.substack.com" target="_blank" class="link-pill" style="font-size:0.9rem;padding:12px 28px;">📝 0xshinchan.substack.com</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav-bar">
+    <div class="nav-dots" id="dots"></div>
+    <div class="slide-counter" id="counter">1 / 8</div>
+    <div class="nav-btns">
+      <button class="nav-btn" id="prev" onclick="go(-1)">← Prev</button>
+      <button class="nav-btn" id="next" onclick="go(1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotsEl = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  let cur = 0;
+  slides.forEach((_,i) => {
+    const d = document.createElement('div');
+    d.className = 'dot'+(i===0?' active':'');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+  function goTo(n) {
+    slides[cur].classList.remove('active');
+    dotsEl.children[cur].classList.remove('active');
+    cur = n;
+    slides[cur].classList.add('active');
+    dotsEl.children[cur].classList.add('active');
+    counter.textContent = (cur+1)+' / '+slides.length;
+    document.getElementById('prev').disabled = cur===0;
+    document.getElementById('next').disabled = cur===slides.length-1;
+  }
+  function go(d) { const n=cur+d; if(n>=0&&n<slides.length) goTo(n); }
+  document.addEventListener('keydown', e => {
+    if(e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(-1);
+  });
+  goTo(0);
+</script>
+</body>
+</html>
